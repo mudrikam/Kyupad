@@ -3,251 +3,101 @@
   "layout": "4x4",
   "buttons": {
     "0": {
-      "name": "Copy Paste",
+      "name": "Macro 1",
       "macro": [
         {
           "keys": [
-            "Win_press"
-          ],
-          "delay": 1287
-        }
-      ],
-      "description": "Copy then paste sequence"
-    },
-    "1": {
-      "name": "Simple Paste",
-      "macro": [
-        {
-          "keys": [
-            "Ctrl_press",
-            "J_press",
-            "J_release",
-            "J_press",
-            "J_release",
-            "Ctrl_release"
-          ],
-          "delay": 936
-        }
-      ],
-      "description": "Paste from clipboard"
-    },
-    "2": {
-      "name": "Undo",
-      "macro": [
-        {
-          "keys": [
-            "Ctrl",
-            "Z"
-          ],
-          "delay": 0
-        }
-      ],
-      "description": "Undo last action"
-    },
-    "3": {
-      "name": "Tab Workflow",
-      "macro": [
-        {
-          "keys": [
-            "Ctrl",
-            "T"
-          ],
-          "delay": 200
-        },
-        {
-          "action": "type",
-          "text": "https://github.com",
-          "delay": 500
-        },
-        {
-          "keys": [
-            "Enter"
-          ],
-          "delay": 0
-        }
-      ],
-      "description": "Open new tab and go to GitHub"
-    },
-    "4": {
-      "name": "Save",
-      "macro": [
-        {
-          "keys": [
-            "Ctrl",
-            "S"
-          ],
-          "delay": 0
-        }
-      ],
-      "description": "Save current document"
-    },
-    "5": {
-      "name": "Find Replace",
-      "macro": [
-        {
-          "keys": [
-            "Ctrl",
-            "F"
-          ],
-          "delay": 200
-        },
-        {
-          "action": "type",
-          "text": "old_text",
-          "delay": 300
-        },
-        {
-          "keys": [
-            "Ctrl",
-            "H"
-          ],
-          "delay": 200
-        },
-        {
-          "action": "type",
-          "text": "new_text",
-          "delay": 0
-        }
-      ],
-      "description": "Find and replace workflow"
-    },
-    "6": {
-      "name": "New Tab",
-      "macro": [
-        {
-          "keys": [
-            "Ctrl",
-            "T"
-          ],
-          "delay": 0
-        }
-      ],
-      "description": "Open new browser tab"
-    },
-    "7": {
-      "name": "Close Tab",
-      "macro": [
-        {
-          "keys": [
-            "Ctrl",
-            "W"
-          ],
-          "delay": 0
-        }
-      ],
-      "description": "Close current tab"
-    },
-    "8": {
-      "name": "Switch App",
-      "macro": [
-        {
-          "keys": [
-            "Alt",
-            "Tab"
-          ],
-          "delay": 0
-        }
-      ],
-      "description": "Switch between applications"
-    },
-    "9": {
-      "name": "Desktop",
-      "macro": [
-        {
-          "keys": [
-            "Win",
-            "D"
-          ],
-          "delay": 0
-        }
-      ],
-      "description": "Show desktop"
-    },
-    "10": {
-      "name": "Screenshot",
-      "macro": [
-        {
-          "keys": [
-            "Win",
-            "Shift",
-            "S"
-          ],
-          "delay": 0
-        }
-      ],
-      "description": "Take screenshot with snip tool"
-    },
-    "11": {
-      "name": "Dev Workflow",
-      "macro": [
-        {
-          "keys": [
-            "Ctrl",
-            "S"
+            "A_press",
+            "A_release"
           ],
           "delay": 100
         },
         {
           "keys": [
-            "Alt",
-            "Tab"
+            "Ctrl_press",
+            "A_press",
+            "A_release",
+            "Ctrl_release"
           ],
-          "delay": 200
-        },
-        {
-          "keys": [
-            "F5"
-          ],
-          "delay": 0
+          "delay": 100
         }
       ],
-      "description": "Save, switch to browser, refresh"
+      "description": ""
+    },
+    "1": {
+      "name": "Macro 2",
+      "macro": [],
+      "description": ""
+    },
+    "2": {
+      "name": "Macro 3",
+      "macro": [],
+      "description": ""
+    },
+    "3": {
+      "name": "Macro 4",
+      "macro": [],
+      "description": ""
+    },
+    "4": {
+      "name": "Macro 5",
+      "macro": [],
+      "description": ""
+    },
+    "5": {
+      "name": "Macro 6",
+      "macro": [],
+      "description": ""
+    },
+    "6": {
+      "name": "Macro 7",
+      "macro": [],
+      "description": ""
+    },
+    "7": {
+      "name": "Macro 8",
+      "macro": [],
+      "description": ""
+    },
+    "8": {
+      "name": "Macro 9",
+      "macro": [],
+      "description": ""
+    },
+    "9": {
+      "name": "Macro 10",
+      "macro": [],
+      "description": ""
+    },
+    "10": {
+      "name": "Macro 11",
+      "macro": [],
+      "description": ""
+    },
+    "11": {
+      "name": "Macro 12",
+      "macro": [],
+      "description": ""
     },
     "12": {
-      "name": "Vol Down",
-      "macro": [
-        {
-          "action": "consumer",
-          "keys": "VolumeDown",
-          "delay": 0
-        }
-      ],
-      "description": "Decrease system volume"
+      "name": "Macro 13",
+      "macro": [],
+      "description": ""
     },
     "13": {
-      "name": "Vol Up",
-      "macro": [
-        {
-          "action": "consumer",
-          "keys": "VolumeUp",
-          "delay": 0
-        }
-      ],
-      "description": "Increase system volume"
+      "name": "Macro 14",
+      "macro": [],
+      "description": ""
     },
     "14": {
-      "name": "Mute",
-      "macro": [
-        {
-          "action": "consumer",
-          "keys": "VolumeMute",
-          "delay": 0
-        }
-      ],
-      "description": "Toggle system mute"
+      "name": "Macro 15",
+      "macro": [],
+      "description": ""
     },
     "15": {
-      "name": "Lock",
-      "macro": [
-        {
-          "keys": [
-            "Win",
-            "L"
-          ],
-          "delay": 0
-        }
-      ],
-      "description": "Lock Windows screen"
+      "name": "Macro 16",
+      "macro": [],
+      "description": ""
     }
   },
   "recording": {
