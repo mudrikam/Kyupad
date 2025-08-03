@@ -3,8 +3,6 @@ import time
 import usb_hid
 from adafruit_hid.keyboard import Keyboard
 from adafruit_hid.keycode import Keycode
-from adafruit_hid.consumer_control import ConsumerControl
-from adafruit_hid.consumer_control_code import ConsumerControlCode
 import digitalio
 import board
 import microcontroller
@@ -69,7 +67,6 @@ class KyupadFirmware:
         
         # Initialize HID interfaces
         self.keyboard = None
-        self.consumer_control = None
         self.ble = None
         self.hid_service = None
         self.is_connected = False
@@ -114,9 +111,8 @@ class KyupadFirmware:
             advertisement.appearance = 961  # HID Keyboard
             advertisement.complete_name = self.device_name
             
-            # Initialize HID keyboard and consumer control
+            # Initialize HID keyboard only
             self.keyboard = Keyboard(self.hid_service.devices)
-            self.consumer_control = ConsumerControl(self.hid_service.devices)
             
             # Start advertising
             self.ble.start_advertising(advertisement)
@@ -134,7 +130,6 @@ class KyupadFirmware:
         try:
             print(f"Initializing USB HID for {self.device_name}...")
             self.keyboard = Keyboard(usb_hid.devices)
-            self.consumer_control = ConsumerControl(usb_hid.devices)
             self.is_connected = True
             print(f"USB HID initialized successfully for {self.device_name}")
         except Exception as e:
@@ -226,21 +221,16 @@ class KyupadFirmware:
                 keys_array = action['keys']
                 delay = action.get('delay', 0)
                 
-                # Process each key in the array
+                # Process each key in the array - only keyboard keys
                 for key in keys_array:
-                    if key in ['VolumeUp', 'VolumeDown', 'VolumeMute', 'PlayPause', 'NextTrack', 'PrevTrack']:
-                        # Consumer control keys
-                        consumer_codes = {
-                            'VolumeUp': ConsumerControlCode.VOLUME_INCREMENT,
-                            'VolumeDown': ConsumerControlCode.VOLUME_DECREMENT,
-                            'VolumeMute': ConsumerControlCode.MUTE,
-                            'PlayPause': ConsumerControlCode.PLAY_PAUSE,
-                            'NextTrack': ConsumerControlCode.SCAN_NEXT_TRACK,
-                            'PrevTrack': ConsumerControlCode.SCAN_PREVIOUS_TRACK
-                        }
-                        parsed_actions.append(('consumer', consumer_codes[key], delay))
+                    # Check if this is a press/release action
+                    if '_' in key and (key.endswith('_press') or key.endswith('_release')):
+                        key_name, action = key.rsplit('_', 1)
+                        keycode = self.get_keycode(key_name)
+                        if keycode:
+                            parsed_actions.append(('key_action', keycode, action, delay))
                     else:
-                        # Regular keyboard keys - treat each as individual key press
+                        # Regular keyboard keys - treat as press+release
                         keycode = self.get_keycode(key)
                         if keycode:
                             parsed_actions.append(('keyboard', keycode, delay))
@@ -255,39 +245,12 @@ class KyupadFirmware:
                     parsed = self.parse_macro_legacy(keys)
                     if parsed:
                         parsed_actions.append(('key', parsed, delay))
-                elif action_type == 'consumer':
-                    consumer_codes = {
-                        'VolumeUp': ConsumerControlCode.VOLUME_INCREMENT,
-                        'VolumeDown': ConsumerControlCode.VOLUME_DECREMENT,
-                        'VolumeMute': ConsumerControlCode.MUTE,
-                        'PlayPause': ConsumerControlCode.PLAY_PAUSE,
-                        'NextTrack': ConsumerControlCode.SCAN_NEXT_TRACK,
-                        'PrevTrack': ConsumerControlCode.SCAN_PREVIOUS_TRACK
-                    }
-                    if keys in consumer_codes:
-                        parsed_actions.append(('consumer', consumer_codes[keys], delay))
-                elif action_type == 'type':
-                    text = action.get('text', '')
-                    if text:
-                        parsed_actions.append(('type', text, delay))
         
         return parsed_actions
 
     def parse_macro_legacy(self, macro_string):
         if not macro_string:
             return None
-            
-        consumer_codes = {
-            'VolumeUp': ConsumerControlCode.VOLUME_INCREMENT,
-            'VolumeDown': ConsumerControlCode.VOLUME_DECREMENT,
-            'VolumeMute': ConsumerControlCode.MUTE,
-            'PlayPause': ConsumerControlCode.PLAY_PAUSE,
-            'NextTrack': ConsumerControlCode.SCAN_NEXT_TRACK,
-            'PrevTrack': ConsumerControlCode.SCAN_PREVIOUS_TRACK
-        }
-        
-        if macro_string in consumer_codes:
-            return ('consumer', consumer_codes[macro_string])
         
         parts = macro_string.split('+')
         modifiers = []
@@ -386,24 +349,33 @@ class KyupadFirmware:
         if isinstance(macro, list):
             parsed_actions = self.parse_macro_array(macro)
             for action_tuple in parsed_actions:
-                if len(action_tuple) == 3:
-                    action_type, action_data, delay = action_tuple
+                if len(action_tuple) >= 3:
+                    action_type = action_tuple[0]
+                    
+                    # Extract delay - could be at different positions depending on action type
+                    if len(action_tuple) == 4 and action_type == 'key_action':
+                        _, keycode, press_release, delay = action_tuple
+                    else:
+                        delay = action_tuple[-1]  # Last element is always delay
                     
                     if delay > 0:
                         time.sleep((delay / 1000.0) / self.macro_speed)
                     
                     try:
                         if action_type == 'key':
-                            self.execute_keyboard_action(action_data)
-                        elif action_type == 'consumer':
-                            self.consumer_control.send(action_data)
+                            self.execute_keyboard_action(action_tuple[1])
                         elif action_type == 'keyboard':
-                            # New simple format - single key press
-                            self.keyboard.press(action_data)
+                            # New simple format - single key press+release
+                            self.keyboard.press(action_tuple[1])
                             time.sleep(0.01)
                             self.keyboard.release_all()
-                        elif action_type == 'type':
-                            self.type_text(action_data)
+                        elif action_type == 'key_action':
+                            # Press/release action
+                            _, keycode, press_release, delay = action_tuple
+                            if press_release == 'press':
+                                self.keyboard.press(keycode)
+                            elif press_release == 'release':
+                                self.keyboard.release(keycode)
                     except Exception as e:
                         print(f"{self.device_name}: Error executing macro action: {e}")
         else:
@@ -412,9 +384,7 @@ class KyupadFirmware:
                 self.execute_keyboard_action(parsed)
 
     def execute_keyboard_action(self, parsed_action):
-        if parsed_action[0] == 'consumer':
-            self.consumer_control.send(parsed_action[1])
-        elif parsed_action[0] == 'keyboard':
+        if parsed_action[0] == 'keyboard':
             modifiers = parsed_action[1]
             key = parsed_action[2]
             
@@ -426,27 +396,6 @@ class KyupadFirmware:
                 self.keyboard.press(key)
                 time.sleep(0.01)
                 self.keyboard.release_all()
-
-    def type_text(self, text):
-        for char in text:
-            if char == ' ':
-                self.keyboard.press(Keycode.SPACE)
-                self.keyboard.release_all()
-            elif char.isalpha():
-                key = getattr(Keycode, char.upper(), None)
-                if key:
-                    if char.isupper():
-                        self.keyboard.press(Keycode.SHIFT, key)
-                        self.keyboard.release_all()
-                    else:
-                        self.keyboard.press(key)
-                        self.keyboard.release_all()
-            elif char.isdigit():
-                key = self.get_keycode(char)
-                if key:
-                    self.keyboard.press(key)
-                    self.keyboard.release_all()
-            time.sleep(0.03)
 
     def run(self):
         print(f"{self.device_name} started - scanning for key presses...")
