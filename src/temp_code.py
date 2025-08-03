@@ -35,32 +35,56 @@ class KyupadFirmware:
         print(f"Device Name: {self.device_name}")
         
         try:
-            self.row_pins = [board.GP2, board.GP3, board.GP4, board.GP5]
-            self.col_pins = [board.GP6, board.GP7, board.GP8, board.GP9]
+            # ESP32-S3 Zero Super Mini pinout
+            self.row_pins = [board.GPIO1, board.GPIO2, board.GPIO3, board.GPIO4]
+            self.col_pins = [board.GPIO5, board.GPIO6, board.GPIO7, board.GPIO8]
+            # Status LED pin for ESP32-S3
+            self.status_led_pin = board.GPIO9
         except AttributeError as e:
             print(f"Pin assignment error: {e}")
-            print("Trying alternative pin names...")
+            print("Trying alternative ESP32-S3 pin names...")
             try:
-                self.row_pins = [board.IO2, board.IO3, board.IO4, board.IO5]
-                self.col_pins = [board.IO6, board.IO7, board.IO8, board.IO9]
+                self.row_pins = [board.IO1, board.IO2, board.IO3, board.IO4]
+                self.col_pins = [board.IO5, board.IO6, board.IO7, board.IO8]
+                self.status_led_pin = board.IO9
             except AttributeError:
-                print("Alternative pin names failed. Check board pinout.")
-                microcontroller.reset()
+                print("Trying legacy ESP32-C3 pin names...")
+                try:
+                    self.row_pins = [board.GP2, board.GP3, board.GP4, board.GP5]
+                    self.col_pins = [board.GP6, board.GP7, board.GP8, board.GP9]
+                    self.status_led_pin = None
+                except AttributeError:
+                    print("All pin assignment attempts failed. Check board pinout.")
+                    microcontroller.reset()
         
         self.rows = []
         self.cols = []
         
+        # Initialize row pins (outputs)
         for pin in self.row_pins:
             row = digitalio.DigitalInOut(pin)
             row.direction = digitalio.Direction.OUTPUT
             row.value = False
             self.rows.append(row)
         
+        # Initialize column pins (inputs with pull-up)
         for pin in self.col_pins:
             col = digitalio.DigitalInOut(pin)
             col.direction = digitalio.Direction.INPUT
             col.pull = digitalio.Pull.UP
             self.cols.append(col)
+        
+        # Initialize status LED if available (ESP32-S3 feature)
+        self.status_led = None
+        if hasattr(self, 'status_led_pin') and self.status_led_pin:
+            try:
+                self.status_led = digitalio.DigitalInOut(self.status_led_pin)
+                self.status_led.direction = digitalio.Direction.OUTPUT
+                self.status_led.value = False
+                print("Status LED initialized on GPIO9")
+            except Exception as e:
+                print(f"Status LED initialization failed: {e}")
+                self.status_led = None
         
         self.connection_mode = self.settings.get('connection_mode', 'usb')  # 'usb', 'bluetooth', or 'auto'
         self.bluetooth_enabled = BLUETOOTH_AVAILABLE and self.connection_mode in ['bluetooth', 'auto']
@@ -86,7 +110,52 @@ class KyupadFirmware:
         print(f"{self.device_name} Firmware initialized")
         print(f"Connection mode: {self.connection_mode}")
         print(f"Loaded {len(self.keymap.get('buttons', {}))} button mappings")
+        print(f"Board: ESP32-S3 Zero Super Mini (optimized)")
+        
+        # ESP32-S3 specific optimizations
+        self.enable_esp32s3_optimizations()
+        
         gc.collect()
+
+    def enable_esp32s3_optimizations(self):
+        """Enable ESP32-S3 specific optimizations"""
+        try:
+            # Try to optimize for ESP32-S3 dual-core performance
+            print("Applying ESP32-S3 optimizations...")
+            
+            # Reduce scan delay for faster response (ESP32-S3 can handle it)
+            if self.debounce_delay > 0.01:  # 10ms minimum for ESP32-S3
+                self.debounce_delay = max(0.01, self.debounce_delay * 0.5)
+                print(f"Optimized debounce delay: {self.debounce_delay*1000:.1f}ms")
+            
+            # Enable status LED blinking if available
+            if self.status_led:
+                self.led_blink_counter = 0
+                print("Status LED ready for connection indication")
+                
+        except Exception as e:
+            print(f"ESP32-S3 optimization failed: {e}")
+
+    def update_status_led(self):
+        """Update status LED based on connection state (ESP32-S3 feature)"""
+        if not self.status_led:
+            return
+            
+        try:
+            if self.bluetooth_enabled:
+                if self.is_connected:
+                    # Solid on when connected
+                    self.status_led.value = True
+                else:
+                    # Slow blink when advertising
+                    self.led_blink_counter = (self.led_blink_counter + 1) % 200
+                    self.status_led.value = self.led_blink_counter < 100
+            else:
+                # Fast blink for USB mode
+                self.led_blink_counter = (self.led_blink_counter + 1) % 40
+                self.status_led.value = self.led_blink_counter < 20
+        except Exception as e:
+            print(f"Status LED update failed: {e}")
 
     def init_bluetooth(self):
         """Initialize Bluetooth HID connection"""
@@ -99,11 +168,11 @@ class KyupadFirmware:
             # Create HID service
             self.hid_service = HIDService()
             
-            # Create device info service
+            # Create device info service with ESP32-S3 specific info
             device_info = DeviceInfoService(
                 software_revision=adafruit_ble.__version__,
                 manufacturer="Kyupad",
-                model=f"4x4 Macropad #{self.device_id}"
+                model=f"ESP32-S3 4x4 Macropad #{self.device_id}"
             )
             
             # Create advertisement
@@ -308,9 +377,13 @@ class KyupadFirmware:
         if current_time - self.last_scan_time < self.debounce_delay:
             return
         
+        # Update status LED (ESP32-S3 feature)
+        self.update_status_led()
+        
         for row_idx in range(4):
             self.rows[row_idx].value = True
-            time.sleep(0.0001)
+            # Shorter delay for ESP32-S3 (faster GPIO)
+            time.sleep(0.00005)  # 50μs instead of 100μs
             
             for col_idx in range(4):
                 pressed = not self.cols[col_idx].value
@@ -341,6 +414,13 @@ class KyupadFirmware:
             
             connection_type = "BT" if self.bluetooth_enabled else "USB"
             print(f"[{self.device_name}-{connection_type}] Key pressed: {name} (Button {button_index})")
+            
+            # Brief LED flash on key press (ESP32-S3 feature)
+            if self.status_led and self.is_connected:
+                self.status_led.value = False
+                time.sleep(0.05)
+                self.status_led.value = True
+            
             self.execute_macro(macro)
         else:
             print(f"{self.device_name}: Unknown button {button_index} pressed")
@@ -400,11 +480,16 @@ class KyupadFirmware:
     def run(self):
         print(f"{self.device_name} started - scanning for key presses...")
         print("Matrix scan active...")
+        print("ESP32-S3 optimized firmware running...")
         
         if self.bluetooth_enabled:
             print(f"🔵 {self.device_name} Bluetooth mode - waiting for device pairing...")
         else:
             print(f"🔌 {self.device_name} USB mode - ready for input")
+        
+        # Initialize LED counter for ESP32-S3
+        if not hasattr(self, 'led_blink_counter'):
+            self.led_blink_counter = 0
         
         while True:
             try:
@@ -414,10 +499,14 @@ class KyupadFirmware:
                 
                 # Scan matrix for key presses
                 self.scan_matrix()
-                time.sleep(0.001)
+                
+                # Faster scan rate for ESP32-S3 (dual-core advantage)
+                time.sleep(0.0005)  # 500μs instead of 1ms
                 
             except KeyboardInterrupt:
                 print(f"{self.device_name} firmware stopped by user")
+                if self.status_led:
+                    self.status_led.value = False
                 break
             except Exception as e:
                 print(f"{self.device_name}: Error in main loop: {e}")

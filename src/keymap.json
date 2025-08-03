@@ -22,82 +22,98 @@
           "delay": 100
         }
       ],
-      "description": ""
+      "description": "",
+      "button_color": "#4CAF50"
     },
     "1": {
       "name": "Macro 2",
       "macro": [],
-      "description": ""
+      "description": "",
+      "button_color": "#2196F3"
     },
     "2": {
       "name": "Macro 3",
       "macro": [],
-      "description": ""
+      "description": "",
+      "button_color": "#FF9800"
     },
     "3": {
       "name": "Macro 4",
       "macro": [],
-      "description": ""
+      "description": "",
+      "button_color": "#E91E63"
     },
     "4": {
       "name": "Macro 5",
       "macro": [],
-      "description": ""
+      "description": "",
+      "button_color": "#9C27B0"
     },
     "5": {
       "name": "Macro 6",
       "macro": [],
-      "description": ""
+      "description": "",
+      "button_color": "#00BCD4"
     },
     "6": {
       "name": "Macro 7",
       "macro": [],
-      "description": ""
+      "description": "",
+      "button_color": "#8BC34A"
     },
     "7": {
       "name": "Macro 8",
       "macro": [],
-      "description": ""
+      "description": "",
+      "button_color": "#FFC107"
     },
     "8": {
       "name": "Macro 9",
       "macro": [],
-      "description": ""
+      "description": "",
+      "button_color": "#F44336"
     },
     "9": {
       "name": "Macro 10",
       "macro": [],
-      "description": ""
+      "description": "",
+      "button_color": "#3F51B5"
     },
     "10": {
       "name": "Macro 11",
       "macro": [],
-      "description": ""
+      "description": "",
+      "button_color": "#009688"
     },
     "11": {
       "name": "Macro 12",
       "macro": [],
-      "description": ""
+      "description": "",
+      "button_color": "#CDDC39"
     },
     "12": {
       "name": "Macro 13",
       "macro": [],
-      "description": ""
+      "description": "",
+      "button_color": "#607D8B"
     },
     "13": {
       "name": "Macro 14",
       "macro": [],
-      "description": ""
+      "description": "",
+      "button_color": "#795548"
     },
     "14": {
       "name": "Macro 15",
       "macro": [],
-      "description": ""
+      "description": "",
+      "button_color": "#FF5722"
     },
     "15": {
       "name": "Macro 16",
       "macro": [],
-      "description": ""
+      "description": "",
+      "button_color": "#BDBDBD"
     }
   },
   "recording": {
@@ -125,7 +141,7 @@
   "metadata": {
     "created": "2025-01-27",
     "author": "Kyupad User",
-    "board": "ESP32-C3 Super Mini",
+    "board": "ESP32-S3 Zero Super Mini",
     "layout_description": "4x4 grid macropad for productivity shortcuts",
     "macro_format": "array_with_timing",
     "wireless_capable": true,

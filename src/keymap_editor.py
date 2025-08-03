@@ -478,22 +478,100 @@ class KeymapEditorWindow(QMainWindow):
     def init_ui(self):
         central_widget = QWidget()
         self.setCentralWidget(central_widget)
+
+        main_layout = QVBoxLayout()
+
+        # --- Settings/info area ---
+        settings_group = QGroupBox("Device Information & Settings")
+        settings_layout = QGridLayout()
+
+        # Version (read-only)
+        settings_layout.addWidget(QLabel("Version:"), 0, 0)
+        self.version_label = QLabel(str(self.keymap_data.get("version", "?")))
+        settings_layout.addWidget(self.version_label, 0, 1)
+
+        # Bluetooth enabled (editable)
+        settings_layout.addWidget(QLabel("Bluetooth Enabled:"), 1, 0)
+        self.bluetooth_combo = QComboBox()
+        self.bluetooth_combo.addItems(["True", "False"])
+        bt_enabled = self.keymap_data.get("settings", {}).get("auto_reconnect", True)
+        self.bluetooth_combo.setCurrentText("True" if bt_enabled else "False")
+        settings_layout.addWidget(self.bluetooth_combo, 1, 1)
+
+        # Sleep timeout (editable)
+        settings_layout.addWidget(QLabel("Sleep Timeout (min):"), 2, 0)
+        self.sleep_spinbox = QSpinBox()
+        self.sleep_spinbox.setRange(1, 999)
+        self.sleep_spinbox.setValue(self.keymap_data.get("settings", {}).get("sleep_timeout_minutes", 30))
+        settings_layout.addWidget(self.sleep_spinbox, 2, 1)
+
+        # Device ID (editable)
+        settings_layout.addWidget(QLabel("Device ID:"), 3, 0)
+        self.device_id_spinbox = QSpinBox()
+        self.device_id_spinbox.setRange(1, 9999)
+        self.device_id_spinbox.setValue(self.keymap_data.get("settings", {}).get("device_id", 1))
+        settings_layout.addWidget(self.device_id_spinbox, 3, 1)
+
+        # Device Name (editable)
+        settings_layout.addWidget(QLabel("Device Name:"), 4, 0)
+        self.device_name_edit = QLineEdit(self.keymap_data.get("settings", {}).get("device_name", "Kyupad-1"))
+        settings_layout.addWidget(self.device_name_edit, 4, 1)
+
+        # Auto reconnect (editable)
+        settings_layout.addWidget(QLabel("Auto Reconnect:"), 5, 0)
+        self.auto_reconnect_combo = QComboBox()
+        self.auto_reconnect_combo.addItems(["True", "False"])
+        auto_reconnect = self.keymap_data.get("settings", {}).get("auto_reconnect", True)
+        self.auto_reconnect_combo.setCurrentText("True" if auto_reconnect else "False")
+        settings_layout.addWidget(self.auto_reconnect_combo, 5, 1)
+
+        # Power save mode (editable)
+        settings_layout.addWidget(QLabel("Power Save Mode:"), 6, 0)
+        self.power_save_combo = QComboBox()
+        self.power_save_combo.addItems(["True", "False"])
+        power_save = self.keymap_data.get("settings", {}).get("power_save_mode", True)
+        self.power_save_combo.setCurrentText("True" if power_save else "False")
+        settings_layout.addWidget(self.power_save_combo, 6, 1)
+
+        # Save button
+        self.save_settings_btn = QPushButton("Save Settings")
+        self.save_settings_btn.clicked.connect(self.save_basic_settings)
+        settings_layout.addWidget(self.save_settings_btn, 7, 0, 1, 2)
+
+        settings_group.setLayout(settings_layout)
+        main_layout.addWidget(settings_group)
+
+        # --- Grid of buttons ---
         grid_layout = QGridLayout()
         grid_layout.setSpacing(10)
         for row in range(4):
             for col in range(4):
                 button_id = str(row * 4 + col)
-                button_data = self.keymap_data.get("buttons", {}).get(button_id, {
-                    "name": f"Button {int(button_id)+1}",
-                    "description": "",
-                    "macro": []
-                })
-                button = QPushButton(button_data.get("name", f"Button {int(button_id)+1}"))
-                button.setMinimumSize(120, 80)
-                button.clicked.connect(lambda checked, bid=button_id: self.show_edit_dialog(bid))
-                self.buttons[button_id] = button
-                grid_layout.addWidget(button, row, col)
-        central_widget.setLayout(grid_layout)
+                button_data = self.keymap_data.get("buttons", {}).get(button_id, {})
+                btn_text = button_data.get("name", f"Macro {int(button_id)+1}")
+                btn_color = button_data.get("button_color", "#CCCCCC")
+                btn = QPushButton(btn_text)
+                btn.setMinimumSize(80, 60)
+                btn.setStyleSheet(f"background-color: {btn_color}; color: white; font-weight: bold; font-size: 14px;")
+                btn.clicked.connect(lambda checked, bid=button_id: self.show_edit_dialog(bid))
+                self.buttons[button_id] = btn
+                grid_layout.addWidget(btn, row, col)
+        main_layout.addLayout(grid_layout)
+        central_widget.setLayout(main_layout)
+
+    def save_basic_settings(self):
+        # Save settings from UI to keymap_data and file
+        settings = self.keymap_data.setdefault("settings", {})
+        settings["sleep_timeout_minutes"] = self.sleep_spinbox.value()
+        settings["device_id"] = self.device_id_spinbox.value()
+        settings["device_name"] = self.device_name_edit.text().strip() or "Kyupad-1"
+        settings["auto_reconnect"] = self.auto_reconnect_combo.currentText() == "True"
+        settings["power_save_mode"] = self.power_save_combo.currentText() == "True"
+        # Bluetooth enabled is mapped to auto_reconnect for simplicity
+        settings["auto_reconnect"] = self.bluetooth_combo.currentText() == "True"
+        self.save_keymap_json()
+        QMessageBox.information(self, "Settings Saved", "Basic settings have been saved.")
+    # Removed duplicate init_ui method. Only the correct version with settings/info area remains.
     
     def update_button_text(self, button_id, text):
         """Update button text when name changes"""
