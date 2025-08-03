@@ -4,116 +4,99 @@
   "buttons": {
     "0": {
       "name": "Macro 1",
-      "macro": [
-        {
-          "keys": [
-            "A_press",
-            "A_release"
-          ],
-          "delay": 100
-        },
-        {
-          "keys": [
-            "Ctrl_press",
-            "A_press",
-            "A_release",
-            "Ctrl_release"
-          ],
-          "delay": 100
-        }
-      ],
+      "macro": [],
       "description": "",
-      "button_color": "#4CAF50"
+      "button_color": "#272727"
     },
     "1": {
       "name": "Macro 2",
       "macro": [],
       "description": "",
-      "button_color": "#2196F3"
+      "button_color": "#272727"
     },
     "2": {
       "name": "Macro 3",
       "macro": [],
       "description": "",
-      "button_color": "#FF9800"
+      "button_color": "#272727"
     },
     "3": {
       "name": "Macro 4",
       "macro": [],
       "description": "",
-      "button_color": "#E91E63"
+      "button_color": "#272727"
     },
     "4": {
       "name": "Macro 5",
       "macro": [],
       "description": "",
-      "button_color": "#9C27B0"
+      "button_color": "#272727"
     },
     "5": {
       "name": "Macro 6",
       "macro": [],
       "description": "",
-      "button_color": "#00BCD4"
+      "button_color": "#272727"
     },
     "6": {
       "name": "Macro 7",
       "macro": [],
       "description": "",
-      "button_color": "#8BC34A"
+      "button_color": "#272727"
     },
     "7": {
       "name": "Macro 8",
       "macro": [],
       "description": "",
-      "button_color": "#FFC107"
+      "button_color": "#272727"
     },
     "8": {
       "name": "Macro 9",
       "macro": [],
       "description": "",
-      "button_color": "#F44336"
+      "button_color": "#272727"
     },
     "9": {
       "name": "Macro 10",
       "macro": [],
       "description": "",
-      "button_color": "#3F51B5"
+      "button_color": "#272727"
     },
     "10": {
       "name": "Macro 11",
       "macro": [],
       "description": "",
-      "button_color": "#009688"
+      "button_color": "#272727"
     },
     "11": {
       "name": "Macro 12",
       "macro": [],
       "description": "",
-      "button_color": "#CDDC39"
+      "button_color": "#272727"
     },
     "12": {
       "name": "Macro 13",
       "macro": [],
       "description": "",
-      "button_color": "#607D8B"
+      "button_color": "#272727"
     },
     "13": {
       "name": "Macro 14",
       "macro": [],
       "description": "",
-      "button_color": "#795548"
+      "button_color": "#272727"
     },
     "14": {
       "name": "Macro 15",
       "macro": [],
       "description": "",
-      "button_color": "#FF5722"
+      "button_color": "#272727"
     },
     "15": {
       "name": "Macro 16",
       "macro": [],
       "description": "",
-      "button_color": "#BDBDBD"
+      "button_color": "#272727"
     }
   },
   "recording": {

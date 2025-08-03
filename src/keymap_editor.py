@@ -1,8 +1,9 @@
 from PySide6.QtWidgets import (QApplication, QMainWindow, QPushButton, QWidget, QVBoxLayout, 
                                QHBoxLayout, QMessageBox, QDialog, QLabel, QListWidget, QLineEdit, 
                                QTextEdit, QGridLayout, QScrollArea, QComboBox, QSpinBox, QGroupBox,
-                               QTableWidget, QTableWidgetItem, QHeaderView)
+                               QTableWidget, QTableWidgetItem, QHeaderView, QColorDialog)
 from PySide6.QtCore import Qt, QRect, QCoreApplication, QEvent, QTimer
+from PySide6.QtGui import QColor
 import sys
 import json
 import os
@@ -48,6 +49,33 @@ class ButtonEditDialog(QDialog):
         self.desc_input.setMaximumHeight(60)
         self.desc_input.setPlainText(self.button_data.get("description", ""))
         layout.addWidget(self.desc_input)
+        
+        # Button color picker
+        color_layout = QHBoxLayout()
+        color_layout.addWidget(QLabel("Button Color:"))
+        
+        # Current color from button data
+        self.current_color = self.button_data.get("button_color", "#CCCCCC")
+        
+        # Color preview button
+        self.color_preview_btn = QPushButton()
+        self.color_preview_btn.setMinimumSize(40, 30)
+        self.color_preview_btn.setMaximumSize(40, 30)
+        self.color_preview_btn.clicked.connect(self.open_color_picker)
+        self.update_color_preview()
+        color_layout.addWidget(self.color_preview_btn)
+        
+        # Hex color label and input
+        self.hex_label = QLabel("Hex:")
+        color_layout.addWidget(self.hex_label)
+        
+        self.hex_input = QLineEdit(self.current_color)
+        self.hex_input.setMaximumWidth(80)
+        self.hex_input.textChanged.connect(self.on_hex_changed)
+        color_layout.addWidget(self.hex_input)
+        
+        color_layout.addStretch()
+        layout.addLayout(color_layout)
         
         # Current macro display
         layout.addWidget(QLabel("Current Macro:"))
@@ -203,11 +231,13 @@ class ButtonEditDialog(QDialog):
         # Update button data
         self.button_data["name"] = self.name_input.text().strip() or f"Button {int(self.button_id)+1}"
         self.button_data["description"] = self.desc_input.toPlainText().strip()
+        self.button_data["button_color"] = self.current_color
         
         # Save to parent keymap
         self.parent_window.keymap_data.setdefault("buttons", {})[self.button_id] = self.button_data
         self.parent_window.save_keymap_json()
         self.parent_window.update_button_text(self.button_id, self.button_data["name"])
+        self.parent_window.update_button_color(self.button_id, self.current_color)
         
         self.close()
     
@@ -440,6 +470,38 @@ class ButtonEditDialog(QDialog):
     def clear_macro(self):
         self.button_data["macro"] = []
         self.update_macro_display()
+    
+    def open_color_picker(self):
+        """Open color picker dialog"""
+        current_qcolor = QColor(self.current_color)
+        color = QColorDialog.getColor(current_qcolor, self, "Choose Button Color")
+        
+        if color.isValid():
+            self.current_color = color.name()
+            self.hex_input.setText(self.current_color)
+            self.update_color_preview()
+    
+    def on_hex_changed(self):
+        """Handle hex input changes"""
+        hex_text = self.hex_input.text().strip()
+        
+        # Validate hex color format
+        if hex_text.startswith('#') and len(hex_text) == 7:
+            try:
+                # Try to create QColor to validate
+                test_color = QColor(hex_text)
+                if test_color.isValid():
+                    self.current_color = hex_text
+                    self.update_color_preview()
+            except:
+                pass  # Invalid hex, ignore
+    
+    def update_color_preview(self):
+        """Update color preview button"""
+        self.color_preview_btn.setStyleSheet(f"background-color: {self.current_color}; border: 1px solid #333;")
+        
+        # Update button data
+        self.button_data["button_color"] = self.current_color
 
 class KeymapEditorWindow(QMainWindow):
     def __init__(self):
@@ -577,6 +639,14 @@ class KeymapEditorWindow(QMainWindow):
         """Update button text when name changes"""
         if button_id in self.buttons:
             self.buttons[button_id].setText(text)
+    
+    def update_button_color(self, button_id, color):
+        """Update button color when color changes"""
+        if button_id in self.buttons:
+            current_style = self.buttons[button_id].styleSheet()
+            # Update only the background-color part
+            new_style = f"background-color: {color}; color: white; font-weight: bold; font-size: 14px;"
+            self.buttons[button_id].setStyleSheet(new_style)
     
     def show_edit_dialog(self, button_id):
         """Show edit dialog for the specified button"""
