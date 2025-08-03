@@ -1,0 +1,157 @@
+{
+  "version": "1.3",
+  "layout": "4x4",
+  "buttons": {
+    "0": {
+      "name": "Copy Paste",
+      "macro": [
+        {"keys": ["Ctrl", "C"], "delay": 100}
+      ],
+      "description": "Copy then paste sequence"
+    },
+    "1": {
+      "name": "Simple Paste",
+      "macro": [
+        {"keys": ["Ctrl", "V"], "delay": 0}
+      ],
+      "description": "Paste from clipboard"
+    },
+    "2": {
+      "name": "Undo",
+      "macro": [
+        {"keys": ["Ctrl", "Z"], "delay": 0}
+      ],
+      "description": "Undo last action"
+    },
+    "3": {
+      "name": "Tab Workflow",
+      "macro": [
+        {"keys": ["Ctrl", "T"], "delay": 200},
+        {"action": "type", "text": "https://github.com", "delay": 500},
+        {"keys": ["Enter"], "delay": 0}
+      ],
+      "description": "Open new tab and go to GitHub"
+    },
+    "4": {
+      "name": "Save",
+      "macro": [
+        {"keys": ["Ctrl", "S"], "delay": 0}
+      ],
+      "description": "Save current document"
+    },
+    "5": {
+      "name": "Find Replace",
+      "macro": [
+        {"keys": ["Ctrl", "F"], "delay": 200},
+        {"action": "type", "text": "old_text", "delay": 300},
+        {"keys": ["Ctrl", "H"], "delay": 200},
+        {"action": "type", "text": "new_text", "delay": 0}
+      ],
+      "description": "Find and replace workflow"
+    },
+    "6": {
+      "name": "New Tab",
+      "macro": [
+        {"keys": ["Ctrl", "T"], "delay": 0}
+      ],
+      "description": "Open new browser tab"
+    },
+    "7": {
+      "name": "Close Tab",
+      "macro": [
+        {"keys": ["Ctrl", "W"], "delay": 0}
+      ],
+      "description": "Close current tab"
+    },
+    "8": {
+      "name": "Switch App",
+      "macro": [
+        {"keys": ["Alt", "Tab"], "delay": 0}
+      ],
+      "description": "Switch between applications"
+    },
+    "9": {
+      "name": "Desktop",
+      "macro": [
+        {"keys": ["Win", "D"], "delay": 0}
+      ],
+      "description": "Show desktop"
+    },
+    "10": {
+      "name": "Screenshot",
+      "macro": [
+        {"keys": ["Win", "Shift", "S"], "delay": 0}
+      ],
+      "description": "Take screenshot with snip tool"
+    },
+    "11": {
+      "name": "Dev Workflow",
+      "macro": [
+        {"keys": ["Ctrl", "S"], "delay": 100},
+        {"keys": ["Alt", "Tab"], "delay": 200},
+        {"keys": ["F5"], "delay": 0}
+      ],
+      "description": "Save, switch to browser, refresh"
+    },
+    "12": {
+      "name": "Vol Down",
+      "macro": [
+        {"action": "consumer", "keys": "VolumeDown", "delay": 0}
+      ],
+      "description": "Decrease system volume"
+    },
+    "13": {
+      "name": "Vol Up",
+      "macro": [
+        {"action": "consumer", "keys": "VolumeUp", "delay": 0}
+      ],
+      "description": "Increase system volume"
+    },
+    "14": {
+      "name": "Mute",
+      "macro": [
+        {"action": "consumer", "keys": "VolumeMute", "delay": 0}
+      ],
+      "description": "Toggle system mute"
+    },
+    "15": {
+      "name": "Lock",
+      "macro": [
+        {"keys": ["Win", "L"], "delay": 0}
+      ],
+      "description": "Lock Windows screen"
+    }
+  },
+  "recording": {
+    "enabled": false,
+    "target_button": null,
+    "max_actions": 20,
+    "auto_detect_delay": true,
+    "min_delay_ms": 50,
+    "max_delay_ms": 2000
+  },
+  "settings": {
+    "debounce_ms": 50,
+    "key_repeat_delay": 500,
+    "key_repeat_rate": 100,
+    "sleep_timeout_minutes": 30,
+    "macro_playback_speed": 1.0,
+    "connection_mode": "auto",
+    "device_id": 1,
+    "device_name": "Kyupad-1",
+    "bluetooth_device_name": "Kyupad-1",
+    "auto_reconnect": true,
+    "power_save_mode": true,
+    "battery_level_report": true
+  },
+  "metadata": {
+    "created": "2025-01-27",
+    "author": "Kyupad User",
+    "board": "ESP32-C3 Super Mini",
+    "layout_description": "4x4 grid macropad for productivity shortcuts",
+    "macro_format": "array_with_timing",
+    "wireless_capable": true,
+    "bluetooth_version": "BLE 5.0",
+    "multi_device_support": true
+  }
+}
